@@ -1,0 +1,79 @@
+body {
+  background: rgb(248, 207, 152);
+}
+
+body input:focus {
+  border: 0px;
+  outline: 0px;
+}
+
+.webPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+#contentPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.containerUser {
+  width: 100px;
+  height: 100px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 18px;
+}
+
+.redText {
+  color: red;
+}
+
+.taskContainer {
+  display: flex;
+  align-items: center;
+}
+
+.textTask {
+  font-size: 18px;
+  color: white;
+  margin-left: 8px;
+}
+
+.doneText {
+  color: rgba(255, 255, 255, 1);
+  text-decoration: line-through;
+}
+
+.editImg {
+  display: none;
+}
+
+body img {
+  margin-left: 10px;
+  color: white;
+}
+
+.taskContainer, .Unchecked {
+  display: flex;
+  flex-direction: row;
+  border: 0px solid black;
+  border-radius: 20%;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  background: rgb(241, 58, 58);
+}
+
+.Checked {
+  background: rgb(21, 185, 21);
+}
+
+.taskContainer img:hover {
+  cursor: pointer;
+}
