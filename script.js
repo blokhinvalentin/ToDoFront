@@ -8,26 +8,24 @@ const hdrs = {
 };
 
 window.onload = async () => {
-  input = document.getElementById('addTask');
+  if (document.getElementById('addTask') !== null) {
+    input = document.getElementById('addTask');
+  } else {
+    console.error('no such element');
+  }
+  
   input.focus();
   input.addEventListener('change', updateValue);
-  input.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-      valueInput = event.target.value;
-      onClickAddButton();
-    } 
-  });
   const resp = await fetch(`${host}/allTasks`, {
     method: 'GET'
   });
   const result = await resp.json();
   allTasks = result.data;
-  console.log(allTasks);
-  localStorage.setItem('tasks', JSON.stringify(allTasks));
+  localStorage.setItem('Tasks', JSON.stringify(allTasks));
   render();
 }
 
-const onClickAddButton = async () => {
+const onClickAddTaskButton = async () => {
   if (valueInput.trim() === '') {
     return;
   }
@@ -42,7 +40,7 @@ const onClickAddButton = async () => {
   });
   const result = await resp.json();
   allTasks = result;
-  localStorage.setItem('tasks', JSON.stringify(allTasks));
+  localStorage.setItem('Tasks', JSON.stringify(allTasks));
   valueInput = '';
   input.value = '';
   render();
@@ -54,129 +52,121 @@ const updateValue = (event) => {
 
 const render = async () => {
   const content = document.getElementById('contentPage');
+  if (content === null) {
+    console.error('no such element');
+  }
 
   while (content.firstChild) {
     content.removeChild(content.firstChild);
   }
 
-  allTasks.forEach((item, index) => {
+  allTasks.forEach((item) => {
+    [itemId] = [item._id];
     let previousValue = '';
-    const itemId = item._id;
+
     const container = document.createElement('div');
-    container.id = `${itemId}`;
     const checkbox = document.createElement('input');
+    const text = document.createElement('p');
+    const editButton = document.createElement('button');
+    const doneButton = document.createElement('button');
+    const deleteButton = document.createElement('button');
+    const cancelButton = document.createElement('button');
+    const newText = document.createElement('input');
+
+    container.id = `${itemId}`;
+    container.className = item.isCheck ? 'taskContainer Checked' : 'taskContainer Unchecked';
+
     checkbox.type = 'checkbox';
     checkbox.checked = item.isCheck;
-    container.className = item.isCheck ? 'taskContainer Checked' : 'taskContainer Unchecked';
-    checkbox.onchange = () => {
-      onChangeCheckbox(checkbox);
-    };
+        
+    [text.innerText, text.className] = [item.text, item.isCheck ? 'textTask doneText' : 'textTask'];
+
+
+    editButton.className = item.isCheck ? 'textTask editButton' : 'buttonEdit';
+    editButton.style.backgroundImage = "url('img/edit.svg')";
+
+    doneButton.className = 'doneButton';
+    doneButton.style.backgroundImage = "url('img/done.svg')";
+
+    
+    deleteButton.className = 'deleteButton';
+    deleteButton.style.backgroundImage = "url('img/close.svg')";
+
+    cancelButton.className = 'cancelButton';
+    cancelButton.style.backgroundImage = "url('img/close.svg')";
+    
+    newText.type = 'text';
 
     container.appendChild(checkbox);
-    const text = document.createElement('p');
-    [text.innerText, text.className] = [item.text, item.isCheck ? 'textTask doneText' : 'textTask'];
     container.appendChild(text);
+    container.appendChild(editButton);
+    container.appendChild(deleteButton);
 
-    const imageEdit = document.createElement('img');
-    imageEdit.className = item.isCheck ? 'textTask editImg' : 'imgEdit';
-    imageEdit.src = 'img/edit.svg';
-    container.appendChild(imageEdit, previousValue);
-    imageEdit.onclick = function() {
-      previousValue = onCLickEdit(imageEdit, previousValue);
+    checkbox.onchange = () => {
+      onChangeTaskCheckbox(container.id, checkbox.checked);
+    };
+
+    editButton.onclick = () => {
+      previousValue = onCLickEditTask(container.id, previousValue);
+      text.replaceWith(newText);
+      editButton.replaceWith(doneButton);
+      deleteButton.replaceWith(cancelButton);
+      newText.focus();
     }
 
-    const imageDelete = document.createElement('img');
-    imageDelete.src = 'img/close.svg';
-    container.appendChild(imageDelete);
-    imageDelete.onclick = function() {
-      onClickDelete(imageDelete);
+    doneButton.onclick = () => {
+      onClickDoneTask(container.id, newText.value);
+    }
+
+    deleteButton.onclick = () => {
+      onClickDeleteTask(container.id);
+    }
+
+    cancelButton.onclick = () => {
+      onClickCancelTaskEditing();
     }
 
     content.appendChild(container);
   });
 }
 
-const onChangeCheckbox = async (elem) => {
-  const parent = elem.parentElement;
-  const id = parent.id;
-  console.log(id);
-  console.log(elem.checked);
-
+const onChangeTaskCheckbox = async (id, check) => {
   const resp = await fetch(`${host}/updateTask`, {
     method: 'PATCH',
     headers: hdrs,
     body: JSON.stringify({
       _id: id,
-      isCheck: elem.checked
+      isCheck: check
     })
   });
   const result = await resp.json();
   allTasks = result;
-
-  localStorage.setItem('tasks', JSON.stringify(allTasks));
+  localStorage.setItem('Tasks', JSON.stringify(allTasks));
   render();
 }
 
-const onCLickEdit = async (elem, previousValue) => {
-  const parent = elem.parentElement;
-  let cancelButton = parent.getElementsByTagName('img');
-  cancelButton = cancelButton[1];
-  let text = parent.getElementsByTagName('p');
-  text = text[0];
-  previousValue = text;
-  const editableText = document.createElement('input');
-  editableText.type = 'text';
-  text.replaceWith(editableText);
-  elem.src = 'img/done.svg';
-  editableText.focus();
-  elem.onclick = function() {
-    onClickDone(elem, previousValue);
-  };
-  cancelButton.onclick = function() {
-    onClickCancel(elem, previousValue);
-  }
-
+const onCLickEditTask = async (id, previousValue) => {
   previousValue = previousValue.innerText;
 
   return previousValue;
 }
 
-const onClickDone = async (elem, previousValue) => {
-  elem.src = 'img/edit.svg';
-  const parent = elem.parentElement;
-  const id0 = parent.id;
-  let editableText = parent.getElementsByTagName('input');
-  for (let i = 0; i < editableText.length; i++) {
-    if (editableText[i].type === 'text') {
-      editableText = editableText[i];
-      const text2 = document.createElement('p');
-      text2.innerText = editableText.value;
-      text2.className = 'textTask';
-      previousValue = text2;
-      editableText.replaceWith(text2);
-    }
-  }
-  
-  const previousText = previousValue.innerText;
+const onClickDoneTask = async (id, newValue) => {
   const resp = await fetch(`${host}/updateTask`, {
         method: 'PATCH',
         headers: hdrs,
         body: JSON.stringify({
-          _id: id0,
-          text: previousText,
-          isCheck: false
+          _id: id,
+          text: newValue
         })
       });
       const result = await resp.json();
       allTasks = result;
-      localStorage.setItem('tasks', JSON.stringify(allTasks));
+      localStorage.setItem('Tasks', JSON.stringify(allTasks));
       render();
 }
 
-const onClickDelete = async (elem) => {
-  const parent = elem.parentElement;
-  const id = parent.id;
-
+const onClickDeleteTask = async (id) => {
   const resp = await fetch(`${host}/deleteTask`, {
     method: 'DELETE',
     headers: hdrs,
@@ -184,22 +174,21 @@ const onClickDelete = async (elem) => {
   });
   const result = await resp.json();
   allTasks = result;
-  localStorage.setItem('tasks', JSON.stringify(allTasks));
+  localStorage.setItem('Tasks', JSON.stringify(allTasks));
   render();
 }
 
-const onClickCancel = async (elem, previousValue) => {
-  const parent = elem.parentElement;
-  const text2 = document.createElement('p');
-  let editableText = parent.getElementsByTagName('input');
-  for (let i = 0; i < editableText.length; i++) {
-    if (editableText[i].type === 'text') {
-      editableText = editableText[i];
-      text2.className = 'textTask';
-      text2.innerText = previousValue;
-      editableText.replaceWith(text2);
-    };
-  }
-  localStorage.setItem('tasks', JSON.stringify(allTasks));
+const onClickCancelTaskEditing = async (id, previousValue) => {
+  const resp = await fetch(`${host}/updateTask`, {
+    method: 'PATCH',
+    headers: hdrs,
+    body: JSON.stringify({
+      _id: id,
+      text: previousValue
+    })
+  });
+  const result = await resp.json();
+  allTasks = result;
+  localStorage.setItem('Tasks', JSON.stringify(allTasks));
   render();
 }

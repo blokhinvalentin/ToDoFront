@@ -7,6 +7,10 @@ body input:focus {
   outline: 0px;
 }
 
+body button:hover {
+  cursor:pointer;
+}
+
 .webPage {
   display: flex;
   align-items: center;
@@ -46,18 +50,24 @@ body input:focus {
   margin-left: 8px;
 }
 
+#contentPage button {
+  margin-left: 10px;
+}
+
 .doneText {
   color: rgba(255, 255, 255, 1);
   text-decoration: line-through;
 }
 
-.editImg {
-  display: none;
+.buttonEdit, .deleteButton, .doneButton, .cancelButton {
+  border: 0px;
+  height: 24px;
+  width: 24px;
+  background: none;
 }
 
-body img {
-  margin-left: 10px;
-  color: white;
+.editButton {
+  display: none;
 }
 
 .taskContainer, .Unchecked {
