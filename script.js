@@ -139,8 +139,6 @@ const onCLickEditTask = async (id, previousValue, text, editButton, deleteButton
   const cancelButton = document.createElement('button');
   const doneImg = document.createElement('img');
   const cancelImg = document.createElement('img');
-  
-  //input.type = 'text';
 
   cancelButton.className = 'cancelButton';
   doneButton.className = 'doneButton';
@@ -190,17 +188,6 @@ const onClickDeleteTask = async (id) => {
 }
 
 const onClickCancelTaskEditing = async (id, previousValue) => {
-  // const resp = await fetch(`${host}/updateTask`, {
-  //   method: 'PATCH',
-  //   headers: hdrs,
-  //   body: JSON.stringify({
-  //     _id: id,
-  //     text: previousValue
-  //   })
-  // });
-  // const result = await resp.json();
-  // allTasks = result;
-  // localStorage.setItem('Tasks', JSON.stringify(allTasks));
   render();
 }
 
