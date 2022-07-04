@@ -140,7 +140,7 @@ const onCLickEditTask = async (id, previousValue, text, editButton, deleteButton
   const doneImg = document.createElement('img');
   const cancelImg = document.createElement('img');
   
-  input.type = 'text';
+  //input.type = 'text';
 
   cancelButton.className = 'cancelButton';
   doneButton.className = 'doneButton';
