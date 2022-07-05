@@ -11,7 +11,7 @@ body button:hover {
   cursor:pointer;
 }
 
-.webPage {
+.todo-list__main-page {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,47 +19,34 @@ body button:hover {
   margin-bottom: 30px;
 }
 
-.contentPage {
+.todo-list__content-page {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
 }
 
-.containerUser {
-  width: 100px;
-  height: 100px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 18px;
-}
-
-.redText {
-  color: red;
-}
-
-.taskContainer {
+.todo-list__task-container {
   display: flex;
   align-items: center;
 }
 
-.textTask {
+.todo-list__text-task {
   font-size: 18px;
   color: white;
   margin-left: 8px;
 }
 
-.contentPage button {
+.todo-list__content-page button {
   margin-left: 10px;
 }
 
-.doneText {
+.todo-list__done-text {
   color: rgba(255, 255, 255, 1);
   text-decoration: line-through;
 }
 
-.buttonEdit, .deleteButton, .doneButton, .cancelButton {
+.todo-list__edit, .todo-list__delete, .todo-list__done, .todo-list__cancel {
   display: flex;
   flex-direction: row;
   border: 0px;
@@ -68,11 +55,11 @@ body button:hover {
   background: none;
 }
 
-.editButton {
+.todo-list__hide {
   display: none;
 }
 
-.taskContainer, .Unchecked {
+.todo-list__task-container, .unchecked {
   display: flex;
   flex-direction: row;
   border: 0px solid black;
@@ -82,10 +69,10 @@ body button:hover {
   background: rgb(241, 58, 58);
 }
 
-.Checked {
+.checked {
   background: rgb(21, 185, 21);
 }
 
-.taskContainer img:hover {
+.todo-list__task-container img:hover {
   cursor: pointer;
 }

@@ -1,5 +1,4 @@
 let allTasks = JSON.parse(localStorage.getItem('allTasks')) || [];
-let valueInput = '';
 const host = 'http://localhost:8000';
 const hdrs = {
   'Content-Type': 'application/json;charset=utf-8',
@@ -24,19 +23,17 @@ window.onload = async () => {
   render();
 }
 
-const onClickAddTask = async () => {
+const addTask = async () => {
   const input = document.getElementById('addTask');
-  if (input === null) {
+  if (input === null || input.value.trim() === '') {
     return;
   }
-  if (valueInput.trim() === '') {
-    return;
-  }
+
   const resp = await fetch(`${host}/createTask`, {
     method: 'POST',
     headers: hdrs,
     body: JSON.stringify({
-      text: valueInput,
+      text: input.value,
       isCheck: false,
       creationTime: new Date()
     })
@@ -44,17 +41,20 @@ const onClickAddTask = async () => {
   const result = await resp.json();
   allTasks = result;
   localStorage.setItem('Tasks', JSON.stringify(allTasks));
-  valueInput = '';
   input.value = '';
   render();
 } 
 
 const updateValue = (event) => {
-  valueInput = event.target.value;
+  const input = document.getElementById('addTask');
+  if (input === null) {
+    return;
+  }
+  input.value = event.target.value;
 }
 
 const render = () => {
-  const content = document.getElementById('contentPage');
+  const content = document.getElementById('todo-list__content-page');
   if (content === null) {
     return;
   }
@@ -64,12 +64,12 @@ const render = () => {
   }
 
   allTasks.forEach((item) => {
-    let { itemId, itemIsCheck } = { itemId: item._id, itemIsCheck: item.isCheck };
+    const { _id, isCheck, text } = item;
     let previousValue = '';
 
     const container = document.createElement('div');
     const checkbox = document.createElement('input');
-    const text = document.createElement('p');
+    const containerText = document.createElement('p');
     const editButton = document.createElement('button');
     const deleteButton = document.createElement('button');
     const editImg = document.createElement('img');
@@ -78,42 +78,42 @@ const render = () => {
     editImg.src = 'img/edit.svg';
     deleteImg.src = 'img/close.svg';
 
-    container.id = `${itemId}`;
-    container.className = item.isCheck ? 'taskContainer Checked' : 'taskContainer Unchecked';
+    container.id = `container-${_id}`;
+    container.className = isCheck ? 'todo-list__task-container checked' : 'todo-list__task-container unchecked';
 
     checkbox.type = 'checkbox';
-    checkbox.checked = item.isCheck;
+    checkbox.checked = isCheck;
         
-    [text.innerText, text.className] = [item.text, item.isCheck ? 'textTask doneText' : 'textTask'];
+    [containerText.innerText, containerText.className] = [text, isCheck ? 'todo-list__text-task todo-list__done-text' : 'todo-list__text-task'];
 
-    editButton.className = item.isCheck ? 'textTask editButton' : 'buttonEdit';
+    editButton.className = isCheck ? 'todo-list__text-task todo-list__hide' : 'todo-list__edit';
     editButton.appendChild(editImg);
     
-    deleteButton.className = 'deleteButton';
+    deleteButton.className = 'todo-list__delete';
     deleteButton.appendChild(deleteImg);
 
     container.appendChild(checkbox);
-    container.appendChild(text);
+    container.appendChild(containerText);
     container.appendChild(editButton);
     container.appendChild(deleteButton);
 
     checkbox.onchange = () => {
-      onChangeTaskCheckbox(itemId, itemIsCheck);
+      onChangeCheckbox(_id, isCheck);
     };
 
     editButton.onclick = () => {
-      onCLickEditTask(itemId, previousValue, text, editButton, deleteButton);
+      editTask(_id, previousValue);
     }
 
     deleteButton.onclick = () => {
-      onClickDeleteTask(itemId);
+      deleteTask(_id);
     }
 
     content.appendChild(container);
   });
 }
 
-const onChangeTaskCheckbox = async (id, check) => {
+const onChangeCheckbox = async (id, check) => {
   const resp = await fetch(`${host}/updateCheckbox`, {
     method: 'PATCH',
     headers: hdrs,
@@ -128,8 +128,8 @@ const onChangeTaskCheckbox = async (id, check) => {
   render();
 }
 
-const onCLickEditTask = async (id, previousValue, text, editButton, deleteButton) => {
-  const parent = document.getElementById(id);
+const editTask = async (id, previousValue) => {
+  const parent = document.getElementById(`container-${id}`);
   if (parent === null) {
     return;
   }
@@ -140,8 +140,10 @@ const onCLickEditTask = async (id, previousValue, text, editButton, deleteButton
   const doneImg = document.createElement('img');
   const cancelImg = document.createElement('img');
 
-  cancelButton.className = 'cancelButton';
-  doneButton.className = 'doneButton';
+  replacableText.type = 'text';
+
+  cancelButton.className = 'todo-list__cancel';
+  doneButton.className = 'todo-list__done';
   
   doneImg.src = 'img/done.svg';
   cancelImg.src = 'img/close.svg';
@@ -149,14 +151,31 @@ const onCLickEditTask = async (id, previousValue, text, editButton, deleteButton
   doneButton.appendChild(doneImg);
   cancelButton.appendChild(cancelImg);
 
-  replaceElems(id, text, editButton, doneButton, deleteButton, cancelButton, replacableText);
+  const buttons = parent.getElementsByTagName('button');
+  const text = parent.getElementsByTagName('p');
+  parent.removeChild(buttons[1]);
+  parent.removeChild(buttons[0]);
+  parent.removeChild(text[0]);
+  parent.appendChild(replacableText);
+  parent.appendChild(doneButton);
+  parent.appendChild(cancelButton);
+
+  replacableText.focus();
+
+  doneButton.onclick = () => {
+    doneTask(id, replacableText.value);
+  }
+
+  cancelButton.onclick = () => {
+    cancelTaskEditing(id, previousValue);
+  }
 
   previousValue = previousValue.innerText;
 
   return previousValue;
 }
 
-const onClickDoneTask = async (id, newValue) => {
+const doneTask = async (id, newValue) => {
   if (newValue.trim() === '') {
     return onClickCancelTaskEditing();
   }
@@ -175,7 +194,7 @@ const onClickDoneTask = async (id, newValue) => {
   render();
 }
 
-const onClickDeleteTask = async (id) => {
+const deleteTask = async (id) => {
   const resp = await fetch(`${host}/deleteTask`, {
     method: 'DELETE',
     headers: hdrs,
@@ -187,21 +206,37 @@ const onClickDeleteTask = async (id) => {
   render();
 }
 
-const onClickCancelTaskEditing = async (id, previousValue) => {
+const cancelTaskEditing = async (id, previousValue) => {
+  const parent = document.getElementById(`container-${id}`);
+  if (parent === null) {
+    return;
+  }
+
+  const text = document.createElement('p');
+  const editButton = document.createElement('button');
+  const deleteButton = document.createElement('button');
+  const editImg = document.createElement('img');
+  const deleteImg = document.createElement('img');
+
+  text.innerText = previousValue;
+
+  deleteButton.className = 'todo-list__delete';
+  editButton.className = 'todo-list__edit';
+  
+  editImg.src = 'img/edit.svg';
+  deleteImg.src = 'img/close.svg';
+  
+  editButton.appendChild(editImg);
+  deleteButton.appendChild(deleteImg);
+
+  const textToReplace = parent.getElementsByTagName('input');
+  const buttons = parent.getElementsByTagName('button');
+  parent.removeChild(buttons[1]);
+  parent.removeChild(buttons[0]);
+  parent.removeChild(textToReplace[1]);
+  parent.appendChild(text);
+  parent.appendChild(editButton);
+  parent.appendChild(deleteButton);
+
   render();
-}
-
-const replaceElems = async (id, text, editButton, doneButton, deleteButton, cancelButton, replacableText) => {
-  text.replaceWith(replacableText);
-  editButton.replaceWith(doneButton);
-  deleteButton.replaceWith(cancelButton);
-  replacableText.focus();
-
-  doneButton.onclick = () => {
-    onClickDoneTask(id, replacableText.value);
-  }
-
-  cancelButton.onclick = () => {
-    onClickCancelTaskEditing();
-  }
 }
