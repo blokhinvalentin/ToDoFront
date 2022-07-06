@@ -29,18 +29,23 @@ const addTask = async () => {
     return;
   }
 
-  const resp = await fetch(`${host}/createTask`, {
-    method: 'POST',
-    headers: hdrs,
-    body: JSON.stringify({
-      text: input.value,
-      isCheck: false,
-      creationTime: new Date()
-    })
-  });
-  const result = await resp.json();
-  allTasks = result;
-  localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  try {
+    const resp = await fetch(`${host}/createTask`, {
+      method: 'POST',
+      headers: hdrs,
+      body: JSON.stringify({
+        text: input.value,
+        isCheck: false,
+        creationTime: new Date()
+      })
+    });
+    const result = await resp.json();
+    allTasks = result;
+    localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  }
+  catch(error) {
+    return;
+  }
   input.value = '';
   render();
 } 
@@ -65,70 +70,55 @@ const render = () => {
 
   allTasks.forEach((item) => {
     const { _id, isCheck, text } = item;
-    let previousValue = '';
 
     const container = document.createElement('div');
     const checkbox = document.createElement('input');
     const containerText = document.createElement('p');
-    const editButton = document.createElement('button');
-    const deleteButton = document.createElement('button');
-    const editImg = document.createElement('img');
-    const deleteImg = document.createElement('img');
 
-    editImg.src = 'img/edit.svg';
-    deleteImg.src = 'img/close.svg';
+    content.appendChild(container);
 
     container.id = `container-${_id}`;
-    container.className = isCheck ? 'todo-list__task-container checked' : 'todo-list__task-container unchecked';
+    container.className = isCheck ? 'todo-list__task-container container__checked' : 'todo-list__task-container container__unchecked';
 
     checkbox.type = 'checkbox';
     checkbox.checked = isCheck;
+    checkbox.id = `checkbox-${_id}`;
         
     [containerText.innerText, containerText.className] = [text, isCheck ? 'todo-list__text-task todo-list__done-text' : 'todo-list__text-task'];
 
-    editButton.className = isCheck ? 'todo-list__text-task todo-list__hide' : 'todo-list__edit';
-    editButton.appendChild(editImg);
-    
-    deleteButton.className = 'todo-list__delete';
-    deleteButton.appendChild(deleteImg);
-
     container.appendChild(checkbox);
     container.appendChild(containerText);
-    container.appendChild(editButton);
-    container.appendChild(deleteButton);
 
     checkbox.onchange = () => {
       onChangeCheckbox(_id, isCheck);
     };
 
-    editButton.onclick = () => {
-      editTask(_id, previousValue);
-    }
-
-    deleteButton.onclick = () => {
-      deleteTask(_id);
-    }
-
-    content.appendChild(container);
+    addButtons(_id, text);
+    
   });
 }
 
 const onChangeCheckbox = async (id, check) => {
-  const resp = await fetch(`${host}/updateCheckbox`, {
-    method: 'PATCH',
-    headers: hdrs,
-    body: JSON.stringify({
-      _id: id,
-      isCheck: !check
-    })
-  });
-  const result = await resp.json();
-  allTasks = result;
-  localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  try {
+    const resp = await fetch(`${host}/updateCheckbox`, {
+      method: 'PATCH',
+      headers: hdrs,
+      body: JSON.stringify({
+        _id: id,
+        isCheck: !check
+      })
+    });
+    const result = await resp.json();
+    allTasks = result;
+    localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  }
+  catch(error) {
+    return;
+  }
   render();
 }
 
-const editTask = async (id, previousValue) => {
+const editTask = async (id, text) => {
   const parent = document.getElementById(`container-${id}`);
   if (parent === null) {
     return;
@@ -152,10 +142,10 @@ const editTask = async (id, previousValue) => {
   cancelButton.appendChild(cancelImg);
 
   const buttons = parent.getElementsByTagName('button');
-  const text = parent.getElementsByTagName('p');
+  const containerText = parent.getElementsByTagName('p');
   parent.removeChild(buttons[1]);
   parent.removeChild(buttons[0]);
-  parent.removeChild(text[0]);
+  parent.removeChild(containerText[0]);
   parent.appendChild(replacableText);
   parent.appendChild(doneButton);
   parent.appendChild(cancelButton);
@@ -167,30 +157,31 @@ const editTask = async (id, previousValue) => {
   }
 
   cancelButton.onclick = () => {
-    cancelTaskEditing(id, previousValue);
+    cancelTaskEditing(id, text);
   }
-
-  previousValue = previousValue.innerText;
-
-  return previousValue;
 }
 
 const doneTask = async (id, newValue) => {
   if (newValue.trim() === '') {
-    return onClickCancelTaskEditing();
+    return;
   }
 
-  const resp = await fetch(`${host}/updateText`, {
-    method: 'PATCH',
-    headers: hdrs,
-    body: JSON.stringify({
-      _id: id,
-      text: newValue
-    })
-  });
-  const result = await resp.json();
-  allTasks = result;
-  localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  try {
+    const resp = await fetch(`${host}/updateText`, {
+      method: 'PATCH',
+      headers: hdrs,
+      body: JSON.stringify({
+        _id: id,
+        text: newValue
+      })
+    });
+    const result = await resp.json();
+    allTasks = result;
+    localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  }
+  catch(error) {
+    return;
+  }
   render();
 }
 
@@ -206,37 +197,56 @@ const deleteTask = async (id) => {
   render();
 }
 
-const cancelTaskEditing = async (id, previousValue) => {
+const cancelTaskEditing = async (id, text) => {
   const parent = document.getElementById(`container-${id}`);
   if (parent === null) {
     return;
   }
 
-  const text = document.createElement('p');
-  const editButton = document.createElement('button');
-  const deleteButton = document.createElement('button');
-  const editImg = document.createElement('img');
-  const deleteImg = document.createElement('img');
+  const containerText = document.createElement('p');
 
-  text.innerText = previousValue;
-
-  deleteButton.className = 'todo-list__delete';
-  editButton.className = 'todo-list__edit';
-  
-  editImg.src = 'img/edit.svg';
-  deleteImg.src = 'img/close.svg';
-  
-  editButton.appendChild(editImg);
-  deleteButton.appendChild(deleteImg);
+  containerText.innerText = text;
+  containerText.className = 'todo-list__text-task';
 
   const textToReplace = parent.getElementsByTagName('input');
   const buttons = parent.getElementsByTagName('button');
   parent.removeChild(buttons[1]);
   parent.removeChild(buttons[0]);
   parent.removeChild(textToReplace[1]);
-  parent.appendChild(text);
+  parent.appendChild(containerText);
+
+  addButtons(id, text);
+}
+
+const addButtons = (id, text) => {
+  const parent = document.getElementById(`container-${id}`);
+  if (parent === null) {
+    return;
+  }
+
+  const checkbox = document.getElementById(`checkbox-${id}`);
+
+  const editButton = document.createElement('button');
+  const deleteButton = document.createElement('button');
+  const editImg = document.createElement('img');
+  const deleteImg = document.createElement('img');
+
+  deleteButton.className = 'todo-list__delete';
+  editButton.className = checkbox.checked ? 'todo-list__hide' : 'todo-list__edit';
+  
+  editImg.src = 'img/edit.svg';
+  deleteImg.src = 'img/close.svg';
+  
+  editButton.appendChild(editImg);
+  deleteButton.appendChild(deleteImg);
   parent.appendChild(editButton);
   parent.appendChild(deleteButton);
 
-  render();
+  editButton.onclick = () => {
+    editTask(id, text);
+  }
+
+  deleteButton.onclick = () => {
+    deleteTask(id);
+  }
 }
