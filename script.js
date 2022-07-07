@@ -1,4 +1,4 @@
-let allTasks = JSON.parse(localStorage.getItem('allTasks')) || [];
+let allTasks = [];
 const host = 'http://localhost:8000';
 const hdrs = {
   'Content-Type': 'application/json;charset=utf-8',
@@ -19,7 +19,6 @@ window.onload = async () => {
   });
   const result = await resp.json();
   allTasks = result;
-  localStorage.setItem('Tasks', JSON.stringify(allTasks));
   render();
 }
 
@@ -41,10 +40,9 @@ const addTask = async () => {
     });
     const result = await resp.json();
     allTasks = result;
-    localStorage.setItem('Tasks', JSON.stringify(allTasks));
   }
   catch(error) {
-    return;
+    throw new Error('unable to create task');
   }
   input.value = '';
   render();
@@ -110,10 +108,9 @@ const onChangeCheckbox = async (id, check) => {
     });
     const result = await resp.json();
     allTasks = result;
-    localStorage.setItem('Tasks', JSON.stringify(allTasks));
   }
   catch(error) {
-    return;
+    throw new Error('unable to change checkbox');
   }
   render();
 }
@@ -177,23 +174,26 @@ const doneTask = async (id, newValue) => {
     });
     const result = await resp.json();
     allTasks = result;
-    localStorage.setItem('Tasks', JSON.stringify(allTasks));
   }
   catch(error) {
-    return;
+    throw new Error('unable to update text');
   }
   render();
 }
 
 const deleteTask = async (id) => {
-  const resp = await fetch(`${host}/deleteTask`, {
-    method: 'DELETE',
-    headers: hdrs,
-    body: JSON.stringify({_id: id})
-  });
-  const result = await resp.json();
-  allTasks = allTasks.filter(task => task._id !== id);
-  localStorage.setItem('Tasks', JSON.stringify(allTasks));
+  try {
+    const resp = await fetch(`${host}/deleteTask`, {
+      method: 'DELETE',
+      headers: hdrs,
+      body: JSON.stringify({_id: id})
+    });
+    const result = await resp.json();
+    allTasks = allTasks.filter(task => task._id !== id);
+  }
+  catch(error) {
+    throw new Error('unable to delete task');
+  }
   render();
 }
 
