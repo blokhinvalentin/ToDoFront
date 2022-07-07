@@ -2,7 +2,7 @@ let allTasks = [];
 const host = 'http://localhost:8000';
 const hdrs = {
   'Content-Type': 'application/json;charset=utf-8',
-      'Access-Control-Allow-Origin': '*'
+  'Access-Control-Allow-Origin': '*'
 };
 
 window.onload = async () => {
@@ -14,11 +14,16 @@ window.onload = async () => {
   input.focus();
   input.addEventListener('change', updateValue);
 
-  const resp = await fetch(`${host}/allTasks`, {
-    method: 'GET'
-  });
-  const result = await resp.json();
-  allTasks = result;
+  try {
+    const resp = await fetch(`${host}/allTasks`, {
+      method: 'GET'
+    });
+    const result = await resp.json();
+    allTasks = result;
+  }
+  catch(error) {
+    throw new Error('can get all tasks');
+  }
   render();
 }
 
@@ -71,7 +76,7 @@ const render = () => {
 
     const container = document.createElement('div');
     const checkbox = document.createElement('input');
-    const containerText = document.createElement('p');
+    const containerText = document.createElement('p');  
 
     content.appendChild(container);
 
@@ -92,7 +97,6 @@ const render = () => {
     };
 
     addButtons(_id, text);
-    
   });
 }
 
