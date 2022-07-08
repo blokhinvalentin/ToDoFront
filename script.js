@@ -6,7 +6,7 @@ const hdrs = {
 };
 
 window.onload = async () => {
-  const input = document.getElementById('addTask');
+  const input = document.getElementById('task-input');
   if (input === null) {
     return;
   }
@@ -22,13 +22,13 @@ window.onload = async () => {
     allTasks = result;
   }
   catch(error) {
-    throw new Error('can get all tasks');
+    alert('can get all tasks');
   }
   render();
 }
 
 const addTask = async () => {
-  const input = document.getElementById('addTask');
+  const input = document.getElementById('task-input');
   if (input === null || input.value.trim() === '') {
     return;
   }
@@ -47,14 +47,14 @@ const addTask = async () => {
     allTasks = result;
   }
   catch(error) {
-    throw new Error('unable to create task');
+    alert('unable to create task');
   }
   input.value = '';
   render();
 } 
 
 const updateValue = (event) => {
-  const input = document.getElementById('addTask');
+  const input = document.getElementById('task-input');
   if (input === null) {
     return;
   }
@@ -114,7 +114,7 @@ const onChangeCheckbox = async (id, check) => {
     allTasks = result;
   }
   catch(error) {
-    throw new Error('unable to change checkbox');
+    alert('unable to change checkbox');
   }
   render();
 }
@@ -132,6 +132,7 @@ const editTask = async (id, text) => {
   const cancelImg = document.createElement('img');
 
   replacableText.type = 'text';
+  replacableText.value = text;
 
   cancelButton.className = 'todo-list__cancel';
   doneButton.className = 'todo-list__done';
@@ -180,7 +181,7 @@ const doneTask = async (id, newValue) => {
     allTasks = result;
   }
   catch(error) {
-    throw new Error('unable to update text');
+    alert('unable to update text');
   }
   render();
 }
@@ -193,10 +194,13 @@ const deleteTask = async (id) => {
       body: JSON.stringify({_id: id})
     });
     const result = await resp.json();
-    allTasks = allTasks.filter(task => task._id !== id);
+    
+    if (result.deletedCount !== 0) {
+      allTasks = allTasks.filter(task => task._id !== id);
+    }
   }
   catch(error) {
-    throw new Error('unable to delete task');
+    alert('unable to delete task');
   }
   render();
 }
