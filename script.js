@@ -109,7 +109,12 @@ const onChangeCheckbox = async (id, check) => {
       })
     });
     const result = await resp.json();
-    allTasks = result;
+    allTasks.forEach(elem => {
+      if (elem._id === id) {
+        elem.isCheck = result;
+      }
+    });
+    //allTasks = result;
   }
   catch(error) {
     alert('unable to change checkbox');
@@ -176,7 +181,11 @@ const doneTask = async (id, newValue) => {
       })
     });
     const result = await resp.json();
-    allTasks = result;
+    allTasks.forEach(elem => {
+      if (elem._id === id) {
+        elem.text = result;
+      }
+    });
   }
   catch(error) {
     alert('unable to update text');
@@ -186,10 +195,9 @@ const doneTask = async (id, newValue) => {
 
 const deleteTask = async (id) => {
   try {
-    const resp = await fetch(`${host}/deleteTask`, {
+    const resp = await fetch(`${host}/deleteTask/${id}`, {
       method: 'DELETE',
-      headers: hdrs,
-      body: JSON.stringify({_id: id})
+      headers: hdrs
     });
     const result = await resp.json();
     
