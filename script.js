@@ -11,7 +11,6 @@ window.onload = async () => {
     return;
   }
 
-  input.focus();
   input.addEventListener('change', updateValue);
 
   try {
@@ -39,8 +38,7 @@ const addTask = async () => {
       headers: hdrs,
       body: JSON.stringify({
         text: input.value,
-        isCheck: false,
-        creationTime: new Date()
+        isCheck: false
       })
     });
     const result = await resp.json();
@@ -102,7 +100,7 @@ const render = () => {
 
 const onChangeCheckbox = async (id, check) => {
   try {
-    const resp = await fetch(`${host}/updateCheckbox`, {
+    const resp = await fetch(`${host}/updateCheckbox/${id}`, {
       method: 'PATCH',
       headers: hdrs,
       body: JSON.stringify({
@@ -169,7 +167,7 @@ const doneTask = async (id, newValue) => {
   }
 
   try {
-    const resp = await fetch(`${host}/updateText`, {
+    const resp = await fetch(`${host}/updateText/${id}`, {
       method: 'PATCH',
       headers: hdrs,
       body: JSON.stringify({
@@ -233,6 +231,9 @@ const addButtons = (id, text) => {
   }
 
   const checkbox = document.getElementById(`checkbox-${id}`);
+  if (checkbox === null) {
+    return;
+  }
 
   const editButton = document.createElement('button');
   const deleteButton = document.createElement('button');
