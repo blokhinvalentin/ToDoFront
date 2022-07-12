@@ -42,7 +42,7 @@ const addTask = async () => {
       })
     });
     const result = await resp.json();
-    allTasks = result;
+    allTasks.unshift(result);
   }
   catch(error) {
     alert('unable to create task');
@@ -109,12 +109,7 @@ const onChangeCheckbox = async (id, check) => {
       })
     });
     const result = await resp.json();
-    allTasks.forEach(elem => {
-      if (elem._id === id) {
-        elem.isCheck = result;
-      }
-    });
-    //allTasks = result;
+    allTasks = result;
   }
   catch(error) {
     alert('unable to change checkbox');
