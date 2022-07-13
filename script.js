@@ -26,7 +26,6 @@ window.onload = async () => {
       alert('can get all tasks');
     }
   }, 500);
-  
 }
 
 const addTask = async () => {
@@ -46,8 +45,7 @@ const addTask = async () => {
     });
     const result = await resp.json();
     allTasks.push(result);
-  }
-  catch(error) {
+  } catch(error) {
     alert('unable to create task');
   }
   input.value = '';
@@ -76,6 +74,7 @@ const render = () => {
   sortableTasks.sort((item1, item2) => {
     return (item1.isCheck === item2.isCheck) ? 0 : item1.isCheck ? 1 : -1; 
   });
+
   allTasks = sortableTasks;
 
 
@@ -124,8 +123,7 @@ const onChangeCheckbox = async (id, check) => {
         allTasks[i] = result;
       }
     }
-  }
-  catch(error) {
+  } catch(error) {
     alert('unable to change checkbox');
   }
   render();
@@ -195,8 +193,7 @@ const doneTask = async (id, newValue) => {
         allTasks[i] = result;
       }
     }
-  }
-  catch(error) {
+  } catch(error) {
     alert('unable to update text');
   }
   render();
@@ -213,8 +210,7 @@ const deleteTask = async (id) => {
     if (result.deletedCount !== 0) {
       allTasks = allTasks.filter(task => task._id !== id);
     }
-  }
-  catch(error) {
+  } catch(error) {
     alert('unable to delete task');
   }
   render();
