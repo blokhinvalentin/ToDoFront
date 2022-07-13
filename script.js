@@ -6,24 +6,27 @@ const hdrs = {
 };
 
 window.onload = async () => {
-  const input = document.getElementById('task-input');
-  if (input === null) {
-    return;
-  }
+  setTimeout(async () => {
+    const input = document.getElementById('task-input');
+    if (input === null) {
+      return;
+    }
 
-  input.addEventListener('change', updateValue);
+    input.focus();
+    input.addEventListener('change', updateValue);
 
-  try {
-    const resp = await fetch(`${host}/allTasks`, {
-      method: 'GET'
-    });
-    const result = await resp.json();
-    allTasks = result;
-  }
-  catch(error) {
-    alert('can get all tasks');
-  }
-  render();
+    try {
+      const resp = await fetch(`${host}/allTasks`, {
+        method: 'GET'
+      });
+      const result = await resp.json();
+      allTasks = result;
+      render();
+    } catch(error) {
+      alert('can get all tasks');
+    }
+  }, 500);
+  
 }
 
 const addTask = async () => {
@@ -42,7 +45,7 @@ const addTask = async () => {
       })
     });
     const result = await resp.json();
-    allTasks.unshift(result);
+    allTasks.push(result);
   }
   catch(error) {
     alert('unable to create task');
@@ -68,6 +71,13 @@ const render = () => {
   while (content.firstChild) {
     content.removeChild(content.firstChild);
   }
+
+  const sortableTasks = [...allTasks];
+  sortableTasks.sort((item1, item2) => {
+    return (item1.isCheck === item2.isCheck) ? 0 : item1.isCheck ? 1 : -1; 
+  });
+  allTasks = sortableTasks;
+
 
   allTasks.forEach((item) => {
     const { _id, isCheck, text } = item;
@@ -109,7 +119,11 @@ const onChangeCheckbox = async (id, check) => {
       })
     });
     const result = await resp.json();
-    allTasks = result;
+    for (let i = 0; i < allTasks.length; i++) {
+      if (allTasks[i]._id === id) {
+        allTasks[i] = result;
+      }
+    }
   }
   catch(error) {
     alert('unable to change checkbox');
@@ -176,11 +190,11 @@ const doneTask = async (id, newValue) => {
       })
     });
     const result = await resp.json();
-    allTasks.forEach(elem => {
-      if (elem._id === id) {
-        elem.text = result;
+    for (let i = 0; i < allTasks.length; i++) {
+      if (allTasks[i]._id === id) {
+        allTasks[i] = result;
       }
-    });
+    }
   }
   catch(error) {
     alert('unable to update text');
