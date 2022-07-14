@@ -5,7 +5,7 @@ const hdrs = {
   'Access-Control-Allow-Origin': '*'
 };
 
-window.onload = async () => {
+window.onload = () => {
 
   // Timeout is for not showing alert if refreshing page frequently
   const timeout = () => {
@@ -78,7 +78,7 @@ const render = () => {
 
   const sortableTasks = [...allTasks];
   sortableTasks.sort((item1, item2) => {
-    return (item1.isCheck === item2.isCheck) ? item1.isCheck ? 1 : -1 : 0; 
+    return (item1.isCheck > item2.isCheck) ? 1 : item1.isCheck < item2.isCheck ? 0 : -1; 
   });
 
   sortableTasks.forEach((item) => {
