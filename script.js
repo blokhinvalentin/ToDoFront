@@ -6,26 +6,33 @@ const hdrs = {
 };
 
 window.onload = async () => {
-  setTimeout(async () => {
-    const input = document.getElementById('task-input');
-    if (input === null) {
-      return;
-    }
 
-    input.focus();
-    input.addEventListener('change', updateValue);
+  // Timeout is for not showing alert if refreshing page frequently
+  const timeout = () => {
+    setTimeout(async () => {
+      const input = document.getElementById('task-input');
+      if (input === null) {
+        return;
+      }
 
-    try {
-      const resp = await fetch(`${host}/allTasks`, {
-        method: 'GET'
-      });
-      const result = await resp.json();
-      allTasks = result;
-      render();
-    } catch(error) {
-      alert('can get all tasks');
-    }
-  }, 500);
+      input.focus();
+      input.addEventListener('change', updateValue);
+
+      try {
+        const resp = await fetch(`${host}/allTasks`, {
+          method: 'GET'
+        });
+        const result = await resp.json();
+        allTasks = result;
+        render();
+      } catch (error) {
+        alert('can get all tasks');
+      }
+    }, 500);
+  }
+
+  const delay = timeout();
+  clearTimeout(delay);
 }
 
 const addTask = async () => {
@@ -39,13 +46,12 @@ const addTask = async () => {
       method: 'POST',
       headers: hdrs,
       body: JSON.stringify({
-        text: input.value,
-        isCheck: false
+        text: input.value
       })
     });
     const result = await resp.json();
     allTasks.push(result);
-  } catch(error) {
+  } catch (error) {
     alert('unable to create task');
   }
   input.value = '';
@@ -72,13 +78,10 @@ const render = () => {
 
   const sortableTasks = [...allTasks];
   sortableTasks.sort((item1, item2) => {
-    return (item1.isCheck === item2.isCheck) ? 0 : item1.isCheck ? 1 : -1; 
+    return (item1.isCheck === item2.isCheck) ? item1.isCheck ? 1 : -1 : 0; 
   });
 
-  allTasks = sortableTasks;
-
-
-  allTasks.forEach((item) => {
+  sortableTasks.forEach((item) => {
     const { _id, isCheck, text } = item;
 
     const container = document.createElement('div');
@@ -113,7 +116,6 @@ const onChangeCheckbox = async (id, check) => {
       method: 'PATCH',
       headers: hdrs,
       body: JSON.stringify({
-        _id: id,
         isCheck: !check
       })
     });
@@ -123,7 +125,7 @@ const onChangeCheckbox = async (id, check) => {
         allTasks[i] = result;
       }
     }
-  } catch(error) {
+  } catch (error) {
     alert('unable to change checkbox');
   }
   render();
@@ -165,7 +167,7 @@ const editTask = async (id, text) => {
   replacableText.focus();
 
   doneButton.onclick = () => {
-    doneTask(id, replacableText.value);
+    doneTaskEditing(id, replacableText.value);
   }
 
   cancelButton.onclick = () => {
@@ -173,7 +175,7 @@ const editTask = async (id, text) => {
   }
 }
 
-const doneTask = async (id, newValue) => {
+const doneTaskEditing = async (id, newValue) => {
   if (newValue.trim() === '') {
     return;
   }
@@ -183,7 +185,6 @@ const doneTask = async (id, newValue) => {
       method: 'PATCH',
       headers: hdrs,
       body: JSON.stringify({
-        _id: id,
         text: newValue
       })
     });
@@ -193,7 +194,7 @@ const doneTask = async (id, newValue) => {
         allTasks[i] = result;
       }
     }
-  } catch(error) {
+  } catch (error) {
     alert('unable to update text');
   }
   render();
@@ -210,7 +211,7 @@ const deleteTask = async (id) => {
     if (result.deletedCount !== 0) {
       allTasks = allTasks.filter(task => task._id !== id);
     }
-  } catch(error) {
+  } catch (error) {
     alert('unable to delete task');
   }
   render();
