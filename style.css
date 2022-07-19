@@ -2,13 +2,18 @@ body {
   background: rgb(248, 207, 152);
 }
 
-body input:focus {
-  border: 0px;
-  outline: 0px;
-}
-
 body button:hover {
   cursor:pointer;
+}
+
+body button:active {
+  cursor: pointer;
+}
+
+.error-red {
+  font-size: 25px;
+  color: red;
+  font-weight: 500;
 }
 
 .todo-list__main-page {
@@ -17,6 +22,19 @@ body button:hover {
   justify-content: center;
   flex-direction: column;
   margin-bottom: 30px;
+}
+
+.add-task-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.add-task-field button {
+  margin-top: 15px;
+  font-size: 17px;
+  padding: 5px 35px;
 }
 
 .todo-list__content-page {
@@ -46,7 +64,7 @@ body button:hover {
   text-decoration: line-through;
 }
 
-.todo-list__edit, .todo-list__delete, .todo-list__done, .todo-list__cancel {
+.todo-list-button {
   display: flex;
   flex-direction: row;
   border: 0px;

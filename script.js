@@ -1,38 +1,30 @@
 let allTasks = [];
-const host = 'http://localhost:8000';
-const hdrs = {
+const host = 'http://localhost:8000/tasks';
+const headers = {
   'Content-Type': 'application/json;charset=utf-8',
   'Access-Control-Allow-Origin': '*'
 };
 
-window.onload = () => {
+window.onload = async () => {
 
-  // Timeout is for not showing alert if refreshing page frequently
-  const timeout = () => {
-    setTimeout(async () => {
-      const input = document.getElementById('task-input');
-      if (input === null) {
-        return;
-      }
-
-      input.focus();
-      input.addEventListener('change', updateValue);
-
-      try {
-        const resp = await fetch(`${host}/allTasks`, {
-          method: 'GET'
-        });
-        const result = await resp.json();
-        allTasks = result;
-        render();
-      } catch (error) {
-        alert('can get all tasks');
-      }
-    }, 500);
+  const input = document.getElementById('task-input');
+  if (input === null) {
+    return;
   }
 
-  const delay = timeout();
-  clearTimeout(delay);
+  input.addEventListener('change', updateValue);
+
+  try {
+    const resp = await fetch(`${host}`, {
+      method: 'GET'
+    });
+    const result = await resp.json();
+    allTasks = result;
+    render();
+  } catch (error) {
+    const errorText = document.getElementById('error-text');
+    errorText.innerText = 'Error: unable to get all items';
+  }
 }
 
 const addTask = async () => {
@@ -42,9 +34,9 @@ const addTask = async () => {
   }
 
   try {
-    const resp = await fetch(`${host}/createTask`, {
+    const resp = await fetch(`${host}`, {
       method: 'POST',
-      headers: hdrs,
+      headers: headers,
       body: JSON.stringify({
         text: input.value
       })
@@ -52,7 +44,8 @@ const addTask = async () => {
     const result = await resp.json();
     allTasks.push(result);
   } catch (error) {
-    alert('unable to create task');
+    const errorText = document.getElementById('error-text');
+    errorText.innerText = 'Error: unable to create task';
   }
   input.value = '';
   render();
@@ -112,9 +105,9 @@ const render = () => {
 
 const onChangeCheckbox = async (id, check) => {
   try {
-    const resp = await fetch(`${host}/updateCheckbox/${id}`, {
+    const resp = await fetch(`${host}/${id}/checkbox`, {
       method: 'PATCH',
-      headers: hdrs,
+      headers: headers,
       body: JSON.stringify({
         isCheck: !check
       })
@@ -123,10 +116,12 @@ const onChangeCheckbox = async (id, check) => {
     for (let i = 0; i < allTasks.length; i++) {
       if (allTasks[i]._id === id) {
         allTasks[i] = result;
+        break;
       }
     }
   } catch (error) {
-    alert('unable to change checkbox');
+    const errorText = document.getElementById('error-text');
+    errorText.innerText = 'Error: unable to change textbox';
   }
   render();
 }
@@ -146,8 +141,8 @@ const editTask = async (id, text) => {
   replacableText.type = 'text';
   replacableText.value = text;
 
-  cancelButton.className = 'todo-list__cancel';
-  doneButton.className = 'todo-list__done';
+  cancelButton.className = 'todo-list-button cancel';
+  doneButton.className = 'todo-list-button done';
   
   doneImg.src = 'img/done.svg';
   cancelImg.src = 'img/close.svg';
@@ -181,9 +176,9 @@ const doneTaskEditing = async (id, newValue) => {
   }
 
   try {
-    const resp = await fetch(`${host}/updateText/${id}`, {
+    const resp = await fetch(`${host}/${id}/text`, {
       method: 'PATCH',
-      headers: hdrs,
+      headers: headers,
       body: JSON.stringify({
         text: newValue
       })
@@ -192,19 +187,21 @@ const doneTaskEditing = async (id, newValue) => {
     for (let i = 0; i < allTasks.length; i++) {
       if (allTasks[i]._id === id) {
         allTasks[i] = result;
+        break;
       }
     }
   } catch (error) {
-    alert('unable to update text');
+    const errorText = document.getElementById('error-text');
+    errorText.innerText = 'Error: unable to update text';
   }
   render();
 }
 
 const deleteTask = async (id) => {
   try {
-    const resp = await fetch(`${host}/deleteTask/${id}`, {
+    const resp = await fetch(`${host}/${id}`, {
       method: 'DELETE',
-      headers: hdrs
+      headers: headers
     });
     const result = await resp.json();
     
@@ -212,7 +209,8 @@ const deleteTask = async (id) => {
       allTasks = allTasks.filter(task => task._id !== id);
     }
   } catch (error) {
-    alert('unable to delete task');
+    const errorText = document.getElementById('error-text');
+    errorText.innerText = 'Error: unable to delete task';
   }
   render();
 }
@@ -254,8 +252,8 @@ const addButtons = (id, text) => {
   const editImg = document.createElement('img');
   const deleteImg = document.createElement('img');
 
-  deleteButton.className = 'todo-list__delete';
-  editButton.className = checkbox.checked ? 'todo-list__hide' : 'todo-list__edit';
+  deleteButton.className = 'todo-list-button delete';
+  editButton.className = checkbox.checked ? 'todo-list__hide' : 'todo-list-button edit';
   
   editImg.src = 'img/edit.svg';
   deleteImg.src = 'img/close.svg';
