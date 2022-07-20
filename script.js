@@ -6,13 +6,10 @@ const headers = {
 };
 
 window.onload = async () => {
-
   const input = document.getElementById('task-input');
   if (input === null) {
     return;
   }
-
-  input.addEventListener('change', updateValue);
 
   try {
     const resp = await fetch(`${host}`, {
@@ -22,8 +19,7 @@ window.onload = async () => {
     allTasks = result;
     render();
   } catch (error) {
-    const errorText = document.getElementById('error-text');
-    errorText.innerText = 'Error: unable to get all items';
+    showError('Error: unable to get all items');
   }
 }
 
@@ -43,21 +39,12 @@ const addTask = async () => {
     });
     const result = await resp.json();
     allTasks.push(result);
+    render();
   } catch (error) {
-    const errorText = document.getElementById('error-text');
-    errorText.innerText = 'Error: unable to create task';
+    input.value = '';
+    showError('Error: unable to create task');
   }
-  input.value = '';
-  render();
 } 
-
-const updateValue = (event) => {
-  const input = document.getElementById('task-input');
-  if (input === null) {
-    return;
-  }
-  input.value = event.target.value;
-}
 
 const render = () => {
   const content = document.getElementById('todo-list__content-page');
@@ -119,11 +106,10 @@ const onChangeCheckbox = async (id, check) => {
         break;
       }
     }
+    render();
   } catch (error) {
-    const errorText = document.getElementById('error-text');
-    errorText.innerText = 'Error: unable to change textbox';
+    showError('Error: unable to change textbox');
   }
-  render();
 }
 
 const editTask = async (id, text) => {
@@ -190,11 +176,10 @@ const doneTaskEditing = async (id, newValue) => {
         break;
       }
     }
+    render();
   } catch (error) {
-    const errorText = document.getElementById('error-text');
-    errorText.innerText = 'Error: unable to update text';
+    showError('Error: unable to update text');
   }
-  render();
 }
 
 const deleteTask = async (id) => {
@@ -208,11 +193,10 @@ const deleteTask = async (id) => {
     if (result.deletedCount !== 0) {
       allTasks = allTasks.filter(task => task._id !== id);
     }
+    render();
   } catch (error) {
-    const errorText = document.getElementById('error-text');
-    errorText.innerText = 'Error: unable to delete task';
+    showError('Error: unable to delete task');
   }
-  render();
 }
 
 const cancelTaskEditing = async (id, text) => {
@@ -270,4 +254,9 @@ const addButtons = (id, text) => {
   deleteButton.onclick = () => {
     deleteTask(id);
   }
+}
+
+const showError = (errorMessage) => {
+  const errorText = document.getElementById('error-text');
+    errorText.innerText = errorMessage;
 }
