@@ -39,6 +39,7 @@ const addTask = async () => {
     });
     const result = await resp.json();
     allTasks.push(result);
+    input.value = '';
     render();
   } catch (error) {
     input.value = '';
