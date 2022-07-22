@@ -42,7 +42,6 @@ const addTask = async () => {
     input.value = '';
     render();
   } catch (error) {
-    input.value = '';
     showError('Error: unable to create task');
   }
 } 
