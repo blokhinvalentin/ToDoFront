@@ -57,11 +57,11 @@ const render = () => {
   }
 
   const sortableTasks = [...allTasks];
-  sortableTasks.sort((item1, item2) => {
-    return (item1.isCheck > item2.isCheck) ? 1 : item1.isCheck < item2.isCheck ? 0 : -1; 
+  sortableTasks.sort((a, b) => {
+    return (a.isCheck > b.isCheck) ? 1 : a.isCheck < b.isCheck ? 0 : -1; 
   });
 
-  sortableTasks.forEach((item) => {
+  sortableTasks.forEach(item => {
     const { _id, isCheck, text } = item;
 
     const container = document.createElement('div');
@@ -131,7 +131,10 @@ const editTask = async (id, text) => {
   doneButton.className = 'todo-list-button done';
   
   doneImg.src = 'img/done.svg';
+  doneImg.alt = '';
+
   cancelImg.src = 'img/close.svg';
+  cancelImg.alt = '';
   
   doneButton.appendChild(doneImg);
   cancelButton.appendChild(cancelImg);
@@ -240,7 +243,10 @@ const addButtons = (id, text) => {
   editButton.className = checkbox.checked ? 'todo-list__hide' : 'todo-list-button edit';
   
   editImg.src = 'img/edit.svg';
+  editImg.alt = '';
+
   deleteImg.src = 'img/close.svg';
+  editImg.alt = '';
   
   editButton.appendChild(editImg);
   deleteButton.appendChild(deleteImg);
