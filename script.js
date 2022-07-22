@@ -258,5 +258,9 @@ const addButtons = (id, text) => {
 
 const showError = (errorMessage) => {
   const errorText = document.getElementById('error-text');
-    errorText.innerText = errorMessage;
+  if (errorText === null) {
+    return;
+  }
+
+  errorText.innerText = errorMessage;
 }
