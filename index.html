@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="todo-list__main-page">
+      <h1>To-do lists</h1>
+      <div class="add-task-field">
+        <input type="text" id="task-input">
+        <button onclick="addTask()">Add</button>
+        <p class="error-red" id="error-text"></p>
+      </div>
+    </div>
+    <div class="todo-list__content-page" id="todo-list__content-page">
+      <div class="loading">Loading&#8230;</div>
+    </div>
+  </body>
+</html>
